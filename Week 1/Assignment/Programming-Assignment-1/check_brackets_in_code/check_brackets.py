@@ -20,6 +20,7 @@ if __name__ == "__main__":
     text = sys.stdin.read()
 
     opening_brackets_stack = []
+    un_match = False
     for i, next in enumerate(text, 1):
         if next == '(' or next == '[' or next == '{':
             # Process opening bracket, write your code here
@@ -27,6 +28,11 @@ if __name__ == "__main__":
 
         if next == ')' or next == ']' or next == '}':
             # Process closing bracket, write your code here
+            if len(opening_brackets_stack) == 0:
+                un_match = True
+                print(i)
+                break
+
             prev = opening_brackets_stack.pop()
             if not prev.Match(next):
                 un_match = True
