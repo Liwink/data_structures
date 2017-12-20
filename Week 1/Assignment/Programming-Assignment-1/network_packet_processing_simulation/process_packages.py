@@ -18,8 +18,9 @@ class Buffer:
 
     def Process(self, request):
         # write your code here
-        pos = bisect.bisect_right(self.finish_time_, request.arrival_time)
-        self.finish_time_ = self.finish_time_[pos:]
+        if not (self.finish_time_ and self.finish_time_[0] > request.arrival_time):
+            pos = bisect.bisect_right(self.finish_time_, request.arrival_time)
+            self.finish_time_ = self.finish_time_[pos:]
         if len(self.finish_time_) < self.size:
             _f_t = self.finish_time_[-1] if self.finish_time_ else request.arrival_time
             self.finish_time_.append(_f_t + request.process_time)
