@@ -8,7 +8,7 @@ class JobQueue:
 
     def write_response(self):
         for i in range(len(self.jobs)):
-          print(self.assigned_workers[i], self.start_times[i]) 
+            print(self.assigned_workers[i], self.start_times[i])
 
     def assign_jobs(self):
         # TODO: replace this code with a faster algorithm.
@@ -16,13 +16,13 @@ class JobQueue:
         self.start_times = [None] * len(self.jobs)
         next_free_time = [0] * self.num_workers
         for i in range(len(self.jobs)):
-          next_worker = 0
-          for j in range(self.num_workers):
-            if next_free_time[j] < next_free_time[next_worker]:
-              next_worker = j
-          self.assigned_workers[i] = next_worker
-          self.start_times[i] = next_free_time[next_worker]
-          next_free_time[next_worker] += self.jobs[i]
+            next_worker = 0
+            for j in range(self.num_workers):
+                if next_free_time[j] < next_free_time[next_worker]:
+                    next_worker = j
+            self.assigned_workers[i] = next_worker
+            self.start_times[i] = next_free_time[next_worker]
+            next_free_time[next_worker] += self.jobs[i]
 
     def solve(self):
         self.read_data()
