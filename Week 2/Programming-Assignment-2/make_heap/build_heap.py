@@ -4,16 +4,30 @@ class HeapBuilder:
     def __init__(self):
         self._swaps = []
         self._data = []
+        self.size = 0
 
     def ReadData(self):
-        n = int(input())
+        self.size = int(input())
         self._data = [int(s) for s in input().split()]
-        assert n == len(self._data)
+        assert self.size == len(self._data)
 
     def WriteResponse(self):
         print(len(self._swaps))
         for swap in self._swaps:
             print(swap[0], swap[1])
+
+    def SiftDown(self, i):
+        l = 2 * i + 1
+        r = 2 * i + 2
+        maxIndex = i
+        if r < self.size and self._data[r] < self._data[maxIndex]:
+            maxIndex = r
+        if l < self.size and self._data[l] < self._data[maxIndex]:
+            maxIndex = l
+        if i != maxIndex:
+            self._swaps.append((i, maxIndex))
+            self._data[i], self._data[maxIndex] = self._data[maxIndex], self._data[i]
+            self.SiftDown(maxIndex)
 
     def GenerateSwaps(self):
         # The following naive implementation just sorts
@@ -23,11 +37,8 @@ class HeapBuilder:
         # but in the worst case gives a quadratic number of swaps.
         #
         # TODO: replace by a more efficient implementation
-        for i in range(len(self._data)):
-            for j in range(i + 1, len(self._data)):
-                if self._data[i] > self._data[j]:
-                    self._swaps.append((i, j))
-                    self._data[i], self._data[j] = self._data[j], self._data[i]
+        for i in reversed(range(int(self.size / 2))):
+            self.SiftDown(i)
 
     def Solve(self):
         self.ReadData()
