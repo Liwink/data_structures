@@ -17,7 +17,7 @@ class QueryProcessor:
     def __init__(self, bucket_count):
         self.bucket_count = bucket_count
         # store all strings in one list
-        self.elems = []
+        self.elems = [[] for i in range(bucket_count)]
 
     def _hash_func(self, s):
         ans = 0
@@ -41,17 +41,16 @@ class QueryProcessor:
         else:
             h = self._hash_func(query.s)
             if query.type == 'find':
-                for i in self.elems[h]:
-                    if i == query.s:
-                        return 'yes'
-                return 'no'
-                self.write_search_result(ind != -1)
+                if query.s in self.elems[h]:
+                    print('yes')
+                else:
+                    print('no')
             elif query.type == 'add':
-                if ind == -1:
-                    self.elems.append(query.s)
+                if query.s not in self.elems[h]:
+                    self.elems[h].append(query.s)
             else:
-                if ind != -1:
-                    self.elems.pop(ind)
+                if query.s in self.elems[h]:
+                    self.elems[h].remove(query.s)
 
     def process_queries(self):
         n = int(input())
