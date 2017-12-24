@@ -62,6 +62,7 @@ def bigRotation(v):
 # Makes splay of the given vertex and makes
 # it the new root.
 def splay(v):
+    global root
     if v is None:
         return None
     while v.parent is not None:
@@ -69,6 +70,7 @@ def splay(v):
             smallRotation(v)
             break
         bigRotation(v)
+    root = v
     return v
 
 
@@ -81,6 +83,7 @@ def splay(v):
 # If the key is bigger than all keys in the tree,
 # then result is None.
 def find(root, key):
+    # Don’t forget to splay the node which was accessed last during the find operation.
     v = root
     last = root
     next = None
@@ -142,13 +145,31 @@ def insert(x):
 def erase(x):
     global root
     # Implement erase yourself
-    pass
+    r, root = find(root, x + 1)
+    splay(r)
+    v, root = find(root, x)
+    splay(v)
+    if v is None or v.key != x:
+        return
+    if r is None:
+        l = v.left
+        if l is None:
+            root = None
+            return
+        l.parent = None
+        root = l
+        return
+    r.left = v.left
+    r.parent = None
+    update(r)
+    root = r
 
 
 def search(x):
     global root
-    # Implement find yourself
-
+    v, root = find(root, x)
+    if v is not None and v.key == x:
+        return True
     return False
 
 
@@ -158,8 +179,38 @@ def sum(fr, to):
     (middle, right) = split(middle, to + 1)
     ans = 0
     # Complete the implementation of sum
+    ans = middle.sum if middle else 0
+    # if to == 10:
+    #     import pdb; pdb.set_trace()
+    root = merge(merge(left, middle), right)
 
     return ans
+
+
+def print_tree():
+    global root
+    if root is None:
+        return
+    print('\n')
+    print('***tree***')
+    print(root.key)
+    r = root
+    line = '{0} {1}'.format(r.left.key if r.left else '\t', r.right.key if r.right else '\t')
+    print(line)
+    r = root.left
+    if r is None:
+        l1 = '\t \t'
+    else:
+        l1 = '{0} {1}'.format(r.left.key if r.left else '\t', r.right.key if r.right else '\t')
+    r = root.right
+    if r is None:
+        l2 = '\t \t'
+    else:
+        l2 = '{0} {1}'.format(r.left.key if r.left else '\t', r.right.key if r.right else '\t')
+    print(l1 + ' ' + l2)
+    print('******')
+    print('\n')
+
 
 MODULO = 1000000001
 n = int(stdin.readline())
@@ -168,10 +219,16 @@ for i in range(n):
     line = stdin.readline().split()
     if line[0] == '+':
         x = int(line[1])
+        # if (x + last_sum_result) % MODULO == 31190791:
+        #     import pdb; pdb.set_trace()
+        # print('add:', (x + last_sum_result) % MODULO)
         insert((x + last_sum_result) % MODULO)
+        # print_tree()
     elif line[0] == '-':
         x = int(line[1])
+        # print('delete:', (x + last_sum_result) % MODULO)
         erase((x + last_sum_result) % MODULO)
+        # print_tree()
     elif line[0] == '?':
         x = int(line[1])
         print('Found' if search((x + last_sum_result) % MODULO) else 'Not found')
