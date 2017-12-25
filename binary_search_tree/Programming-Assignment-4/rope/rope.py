@@ -1,4 +1,5 @@
 # python3
+import sys
 
 
 class Vertex:
@@ -67,12 +68,14 @@ def splay(v):
 def find(v, index):
     # index is 0-based
     global root
+    # if v is None:
+    #     import pdb; pdb.set_trace()
     if v.size < index:
         return None
     s = v.left.size if v.left else 0
     if s == index:
         root = splay(v)
-        return v
+        return v, root
     elif s < index:
         return find(v.right, index - s - 1)
     else:
@@ -86,16 +89,51 @@ def append(key):
     root = v
 
 
-def split(v, tree):
-    pass
+def split(root, key):
+    if key == root.size:
+        result, root = find(root, key - 1)
+        left = splay(result)
+        return left, None
+    result, root = find(root, key)
+    if result is None:
+        return root, None
+    right = splay(result)
+    left = right.left
+    right.left = None
+    if left is not None:
+        left.parent = None
+    update(left)
+    update(right)
+    return (left, right)
 
 
 def merge(left, right):
-    pass
+    if left is None:
+        return right
+    if right is None:
+        return left
+    while right.left is not None:
+        right = right.left
+    right = splay(right)
+    right.left = left
+    update(right)
+    return right
 
 
 def insert(i, tree, subtree):
-    pass
+    global root
+    left, right = split(root, i)
+    left = merge(left, subtree)
+    root = merge(left, right)
+
+
+def traverse(tree):
+    if tree is None:
+        return
+    traverse(tree.left)
+    print(tree.key)
+    traverse(tree.right)
+
 
 root = None
 
@@ -103,29 +141,46 @@ root = None
 class Rope:
     def __init__(self, s):
         self.s = s
+        for i in s:
+            append(i)
+        self._result = []
+
+    def traverse(self, tree, init=False):
+        if init:
+            self._result = []
+        if tree is None:
+            return
+        self.traverse(tree.left)
+        self._result.append(tree.key)
+        self.traverse(tree.right)
 
     def result(self):
-        return self.s
+        self.traverse(root, init=True)
+        return ''.join(self._result)
 
     def process(self, i, j, k):
         global root
-        s1, s2 = split(i, root)
-        s2, s3 = split(j, s2)
-        root = merge(s1, s3)
-        insert(k, root, s2)
+        left, right = split(root, i)
+        middle, right = split(root, j - i + 1)
+        root = merge(left, right)
+        insert(k, root, middle)
 
         # Write your code here
         pass
 
-# rope = Rope(sys.stdin.readline().strip())
-# q = int(sys.stdin.readline())
-# for _ in range(q):
-#     i, j, k = map(int, sys.stdin.readline().strip().split())
-#     rope.process(i, j, k)
-# print(rope.result())
+rope = Rope(sys.stdin.readline().strip())
+q = int(sys.stdin.readline())
+for _ in range(q):
+    i, j, k = map(int, sys.stdin.readline().strip().split())
+    rope.process(i, j, k)
+print(rope.result())
+# import pdb
+# pdb.set_trace()
 
-if __name__ == '__main__':
-    for i in 'hello':
-        append(i)
-    import pdb
-    pdb.set_trace()
+# if __name__ == '__main__':
+#     for i in 'helloworld':
+#         append(i)
+#     left, right = split(root, 3)
+#     middle, right = split(right, 2 + 1)
+#     import pdb
+#     pdb.set_trace()
