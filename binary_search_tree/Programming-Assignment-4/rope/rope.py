@@ -90,6 +90,8 @@ def append(key):
 
 
 def split(root, key):
+    if root is None:
+        return None, None
     if key == root.size:
         result, root = find(root, key - 1)
         left = splay(result)
